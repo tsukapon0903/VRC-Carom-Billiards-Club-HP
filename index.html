@@ -212,6 +212,79 @@
       line-height:1.5;
     }
 
+    /* Gallery */
+    .gallery-grid{
+      margin-top:12px;
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap:10px;
+    }
+    .thumb{
+      display:block;
+      border:1px solid var(--line);
+      border-radius:14px;
+      overflow:hidden;
+      background:rgba(0,0,0,.18);
+      cursor:pointer;
+    }
+    .thumb img{
+      width:100%;
+      height:160px;
+      object-fit:cover;
+      display:block;
+      transition: transform .12s ease;
+    }
+    .thumb:hover img{ transform: scale(1.02); }
+    .thumb .cap{
+      padding:8px 10px;
+      font-size:13px;
+      color:var(--muted);
+      border-top:1px solid var(--line);
+      line-height:1.35;
+    }
+
+    .lightbox{
+      position:fixed;
+      inset:0;
+      z-index:50;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      background:rgba(0,0,0,.78);
+    }
+    .lightbox.open{ display:flex; }
+    .lightbox-inner{
+      position:relative;
+      max-width:min(1100px, 96vw);
+      max-height:88vh;
+    }
+    .lightbox img{
+      width:100%;
+      height:auto;
+      max-height:88vh;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(0,0,0,.35);
+      display:block;
+    }
+    .lightbox .close{
+      position:absolute;
+      top:-12px;
+      right:-12px;
+      width:40px;
+      height:40px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.22);
+      background:rgba(10,23,48,.9);
+      color:var(--text);
+      cursor:pointer;
+      font-size:20px;
+      line-height:38px;
+      text-align:center;
+    }
+    .lightbox .close:hover{ background:rgba(255,255,255,.10); }
+
     footer{
       margin-top:26px;
       color:var(--muted);
@@ -226,7 +299,39 @@
       .logo{ width:76px; height:76px; border-radius:16px; }
       .title h1{ font-size:24px; }
     }
-  </style>
+  
+    /* リーグ戦などの添付画像（サムネ：だいたい1/4サイズ） */
+.item-imgs{
+  display:flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+.item-imgs .img-btn{
+  appearance:none;
+  border:0;
+  background:transparent;
+  padding:0;
+  cursor:pointer;
+  width: 25%;
+  max-width: 220px;
+  min-width: 120px;
+}
+.item-imgs img{
+  width:100%;
+  height:auto;
+  border-radius: 14px;
+  display:block;
+  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+}
+@media (max-width:720px){
+  .item-imgs .img-btn{
+    width: 48%;
+    max-width:none;
+    min-width: 0;
+  }
+}
+</style>
 </head>
 <body>
   <header class="hero">
@@ -251,6 +356,7 @@
       <a href="#about">概要</a>
       <a href="#activities">活動内容</a>
       <a href="#history">過去のイベント</a>
+      <a href="#gallery">ギャラリー</a>
       <a href="#join">参加方法</a>
     </div>
   </nav>
@@ -299,6 +405,15 @@
       <ol id="historyList" class="list"></ol>
     </section>
 
+    <section id="gallery" class="card">
+      <h2>ギャラリー</h2>
+      <p class="muted">
+        画像はCloudinaryから配信しています（クリックで拡大）。
+        追加したい場合は、下のスクリプト内の <code>gallery</code> に Public ID を追記してください。
+      </p>
+      <div id="galleryGrid" class="gallery-grid"></div>
+    </section>
+
     <section id="join" class="card">
       <h2>参加方法</h2>
       <p class="muted">どなたでも参加歓迎です。まずは下記から参加しやすい入口をご利用ください。</p>
@@ -317,8 +432,76 @@
     </footer>
   </main>
 
+  
   <script>
-    // --- イベントデータ（「月日は何月何日の表記」） ---
+  (function(){
+    "use strict";
+
+    // ===== Cloudinary =====
+    const CLOUD_NAME = "dlqrotrhj";
+
+    // URLから Cloudinary 変換（軽量化・縮小）を差し込む
+    function cldFromUrl(url, width){
+      if(!url) return "";
+      const marker = "/image/upload/";
+      const i = url.indexOf(marker);
+      if(i === -1) return url;
+      const prefix = url.slice(0, i + marker.length);
+      const rest   = url.slice(i + marker.length); // 例: v12345/abc.png
+      const w = width ? `w_${width},` : "";
+      return `${prefix}${w}f_auto,q_auto/${rest}`;
+    }
+
+    // Public ID からURLを作る（必要なら）
+    function cldUrl(publicId, width){
+      const w = width ? `w_${width},` : "";
+      return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${w}f_auto,q_auto/${publicId}`;
+    }
+
+    // ===== Utilities =====
+    function normalize(s){
+      return (s || "").toString().toLowerCase().replace(/\s+/g, "");
+    }
+    function escapeHtml(s){
+      return (s ?? "").toString()
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    // ===== Lightbox（ギャラリー/イベント共通）=====
+    const lb = document.createElement("div");
+    lb.className = "lightbox";
+    lb.innerHTML = `
+      <div class="lightbox-inner">
+        <button class="close" aria-label="閉じる">×</button>
+        <img alt="" />
+      </div>
+    `;
+    document.body.appendChild(lb);
+
+    const lbImg = lb.querySelector("img");
+    const lbClose = lb.querySelector(".close");
+
+    function openLightbox(src, alt){
+      if(!src) return;
+      lbImg.src = src;
+      lbImg.alt = alt || "";
+      lb.classList.add("open");
+    }
+    function closeLightbox(){
+      lb.classList.remove("open");
+      // 画像を外す（メモリ節約）
+      lbImg.src = "";
+      lbImg.alt = "";
+    }
+    lbClose.addEventListener("click", closeLightbox);
+    lb.addEventListener("click", (e) => { if(e.target === lb) closeLightbox(); });
+    document.addEventListener("keydown", (e) => { if(e.key === "Escape") closeLightbox(); });
+
+    // ===== 過去イベントデータ =====
     const data = {
       tournaments: [
         { date: "2月7日",  title: "3ballトーナメント", winner: "貴＠ｓｃT" },
@@ -337,8 +520,24 @@
         { date: "10月3日", title: "スリークッション講座「スリークッション　次への一歩」", instructor: "int mint" }
       ],
       leagues: [
-        { date: "6月9日～7月17日", title: "第1回スリークッションリーグ", winner: "int mint" },
-        { date: "9月18日～10月16日", title: "第2回スリークッションリーグ", winner: "int mint" }
+        {
+          date: "6月9日～7月17日",
+          title: "第1回スリークッションリーグ",
+          winner: "int mint",
+          imgs: [
+            "https://res.cloudinary.com/dlqrotrhj/image/upload/v1765795920/2_mytd2z.png",
+            "https://res.cloudinary.com/dlqrotrhj/image/upload/v1765810892/winner_hm6pew.png"
+          ]
+        },
+        {
+          date: "9月18日～10月16日",
+          title: "第2回スリークッションリーグ",
+          winner: "int mint",
+          imgs: [
+            "https://res.cloudinary.com/dlqrotrhj/image/upload/v1765795921/5_iuvrrm.png",
+            "https://res.cloudinary.com/dlqrotrhj/image/upload/v1765810994/winner_1_hqruhy.png"
+          ]
+        }
       ],
       ongoing: [
         { date: "10月22日～1月14日", title: "FargoRate 成り上がり杯", note: "現在運用中" }
@@ -352,24 +551,20 @@
       ongoing: "運用中"
     };
 
+    // ===== 過去イベント描画 =====
     const listEl = document.getElementById("historyList");
     const qEl = document.getElementById("q");
     const btns = Array.from(document.querySelectorAll(".btn[data-kind]"));
-
     let currentKind = "tournaments";
 
-    function normalize(s){
-      return (s || "").toString().toLowerCase().replace(/\s+/g, "");
-    }
+    function renderHistory(){
+      if(!listEl) return;
 
-    function render(){
-      const q = normalize(qEl.value);
       const items = data[currentKind] || [];
+      const q = normalize(qEl ? qEl.value : "");
 
       const filtered = items.filter(it => {
-        const hay = normalize([
-          it.date, it.title, it.winner, it.instructor, it.note
-        ].filter(Boolean).join(" "));
+        const hay = normalize([it.date, it.title, it.winner, it.instructor, it.note].filter(Boolean).join(" "));
         return !q || hay.includes(q);
       });
 
@@ -386,33 +581,102 @@
       filtered.forEach(it => {
         const li = document.createElement("li");
         li.className = "item";
+
         const metaParts = [];
-        if(it.winner) metaParts.push(`優勝者：${it.winner}`);
-        if(it.instructor) metaParts.push(`講師：${it.instructor}`);
-        if(it.note) metaParts.push(it.note);
+        if(it.winner) metaParts.push(`優勝者：${escapeHtml(it.winner)}`);
+        if(it.instructor) metaParts.push(`講師：${escapeHtml(it.instructor)}`);
+        if(it.note) metaParts.push(escapeHtml(it.note));
+
+        const imgUrls = [];
+        if(Array.isArray(it.imgs)) imgUrls.push(...it.imgs);
+        if(it.img) imgUrls.unshift(it.img);
+
+        const imgsHtml = imgUrls.length ? `
+          <div class="item-imgs">
+            ${imgUrls.map((u, idx) => {
+              const thumb = cldFromUrl(u, 320);     // 小さめ（約1/4）
+              const full  = cldFromUrl(u, 1600);    // 拡大表示
+              const alt   = escapeHtml(`${it.title} (${idx+1})`);
+              return `<button class="img-btn" type="button" data-full="${full}" data-alt="${alt}" aria-label="画像を拡大">
+                        <img src="${thumb}" alt="${alt}" loading="lazy" />
+                      </button>`;
+            }).join("")}
+          </div>
+        ` : "";
 
         li.innerHTML = `
           <div class="top">
-            <span class="badge">${labels[currentKind]} / ${it.date}</span>
+            <span class="badge">${labels[currentKind]} / ${escapeHtml(it.date)}</span>
           </div>
-          <h3>${it.title}</h3>
+          <h3>${escapeHtml(it.title)}</h3>
           ${metaParts.length ? `<div class="meta">${metaParts.join("　")}</div>` : ""}
+          ${imgsHtml}
         `;
+
+        li.querySelectorAll(".img-btn").forEach(btn => {
+          btn.addEventListener("click", () => openLightbox(btn.dataset.full, btn.dataset.alt || ""));
+        });
+
         listEl.appendChild(li);
       });
     }
 
+    // ボタン初期化
     btns.forEach(b => {
       b.addEventListener("click", () => {
         currentKind = b.dataset.kind;
         btns.forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
-        render();
+        renderHistory();
       });
     });
+    if(qEl) qEl.addEventListener("input", renderHistory);
 
-    qEl.addEventListener("input", render);
+    // デフォルト：トーナメント表示
+    btns.forEach(x => x.setAttribute("aria-pressed", x.dataset.kind === currentKind ? "true" : "false"));
+    renderHistory();
 
-    render();
+    // ===== Gallery（Cloudinary）=====
+    const gallery = [
+      { id: "1_skqpf3", title: "ポスター" },
+      { url: "https://res.cloudinary.com/dlqrotrhj/image/upload/v1765795485/8_td9pno.png", title: "告知画像" }
+    ];
+
+    const galleryGrid = document.getElementById("galleryGrid");
+
+    function galleryItemUrl(item, width){
+      if(item.url) return cldFromUrl(item.url, width);
+      return cldUrl(item.id, width);
+    }
+
+    function renderGallery(){
+      if(!galleryGrid) return;
+
+      if(!gallery || gallery.length === 0){
+        galleryGrid.innerHTML = '<div class="muted">（ギャラリー画像を追加するとここに表示されます）</div>';
+        return;
+      }
+      galleryGrid.innerHTML = "";
+      gallery.forEach((g) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "thumb";
+        btn.style.textAlign = "left";
+
+        const src = galleryItemUrl(g, 420);
+        const full = galleryItemUrl(g, 1800);
+
+        btn.innerHTML = `
+          <img src="${src}" alt="${escapeHtml(g.title || "")}" loading="lazy" />
+          <div class="cap">${escapeHtml(g.title || "")}</div>
+        `;
+        btn.addEventListener("click", () => openLightbox(full, g.title || ""));
+        galleryGrid.appendChild(btn);
+      });
+    }
+
+    renderGallery();
+  })();
   </script>
+
 </body>
 </html>
