@@ -331,6 +331,91 @@
     min-width: 0;
   }
 }
+
+    /* Videos */
+    
+    .video-thumb{
+      position:absolute;
+      inset:0;
+      display:block;
+      color:inherit;
+      text-decoration:none;
+      background:#000;
+    }
+    .video-thumb img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+      filter:saturate(1.02) contrast(1.03);
+    }
+    .video-thumb .play{
+      position:absolute;
+      inset:0;
+      display:grid;
+      place-items:center;
+      background:linear-gradient(180deg, rgba(0,0,0,.20), rgba(0,0,0,.35));
+    }
+    .video-thumb .play:before{
+      content:"";
+      width:64px;
+      height:44px;
+      border-radius:12px;
+      background:rgba(0,0,0,.55);
+      border:1px solid rgba(255,255,255,.20);
+      box-shadow:0 10px 30px rgba(0,0,0,.35);
+    }
+    .video-thumb .play:after{
+      content:"";
+      position:absolute;
+      width:0;
+      height:0;
+      border-left:16px solid rgba(255,255,255,.92);
+      border-top:10px solid transparent;
+      border-bottom:10px solid transparent;
+      transform:translateX(4px);
+    }
+    .video-thumb:hover img{ filter:saturate(1.05) contrast(1.05); }
+
+.video-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
+      gap:14px;
+      margin-top:14px;
+    }
+    .video-card{
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:16px;
+      overflow:hidden;
+    }
+    .ratio{
+      position:relative;
+      width:100%;
+      aspect-ratio:16/9;
+      background:rgba(0,0,0,.25);
+    }
+    .ratio iframe{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      border:0;
+    }
+    .video-meta{
+      padding:12px 12px 14px;
+    }
+    .video-title{
+      font-weight:800;
+      margin-bottom:6px;
+    }
+    .video-link{
+      color:rgba(255,255,255,.82);
+      word-break:break-all;
+      font-size:13px;
+      text-decoration:underline;
+    }
+
 </style>
 </head>
 <body>
@@ -358,6 +443,7 @@
       <a href="#history">過去のイベント</a>
       <a href="#gallery">ギャラリー</a>
       <a href="#join">参加方法</a>
+      <a href="#videos">動画</a>
     </div>
   </nav>
 
@@ -426,6 +512,67 @@
         ※イベント当日は、VRChat内で集合してそのまま参加できるスタイルです。告知はDiscord・Xをご確認ください。
       </p>
     </section>
+
+
+    <section id="videos" class="card">
+      <h2>動画</h2>
+      <p class="muted">YouTubeで公開している関連動画です（クリックでYouTubeを開きます）。</p>
+
+      <div class="video-grid">
+<div class="video-card">
+          <div class="ratio">
+            <a class="video-thumb" href="https://youtu.be/oja49ijZnd8" target="_blank" rel="noopener noreferrer" aria-label="VRC キャロムビリヤード部　スライドショー（YouTubeで開く）">
+              <img src="https://i.ytimg.com/vi/oja49ijZnd8/hqdefault.jpg" alt="VRC キャロムビリヤード部　スライドショー サムネイル" loading="lazy">
+              <span class="play" aria-hidden="true"></span>
+            </a>
+          </div>
+          <div class="video-meta">
+            <div class="video-title">VRC キャロムビリヤード部　スライドショー</div>
+            <a class="video-link" href="https://youtu.be/oja49ijZnd8" target="_blank" rel="noopener noreferrer">https://youtu.be/oja49ijZnd8</a>
+          </div>
+        </div>
+
+<div class="video-card">
+          <div class="ratio">
+            <a class="video-thumb" href="https://youtu.be/_0ZMVB6lvTY" target="_blank" rel="noopener noreferrer" aria-label="vrchat スリークッションの特殊な取り方（YouTubeで開く）">
+              <img src="https://i.ytimg.com/vi/_0ZMVB6lvTY/hqdefault.jpg" alt="vrchat スリークッションの特殊な取り方 サムネイル" loading="lazy">
+              <span class="play" aria-hidden="true"></span>
+            </a>
+          </div>
+          <div class="video-meta">
+            <div class="video-title">vrchat スリークッションの特殊な取り方</div>
+            <a class="video-link" href="https://youtu.be/_0ZMVB6lvTY" target="_blank" rel="noopener noreferrer">https://youtu.be/_0ZMVB6lvTY</a>
+          </div>
+        </div>
+
+<div class="video-card">
+          <div class="ratio">
+            <a class="video-thumb" href="https://youtu.be/DgG79SYBqac" target="_blank" rel="noopener noreferrer" aria-label="three cushion spirits（YouTubeで開く）">
+              <img src="https://i.ytimg.com/vi/DgG79SYBqac/hqdefault.jpg" alt="three cushion spirits サムネイル" loading="lazy">
+              <span class="play" aria-hidden="true"></span>
+            </a>
+          </div>
+          <div class="video-meta">
+            <div class="video-title">three cushion spirits</div>
+            <a class="video-link" href="https://youtu.be/DgG79SYBqac" target="_blank" rel="noopener noreferrer">https://youtu.be/DgG79SYBqac</a>
+          </div>
+        </div>
+
+<div class="video-card">
+          <div class="ratio">
+            <a class="video-thumb" href="https://youtu.be/mRQy9C9HhxA" target="_blank" rel="noopener noreferrer" aria-label="#18 Napoleon hat（YouTubeで開く）">
+              <img src="https://i.ytimg.com/vi/mRQy9C9HhxA/hqdefault.jpg" alt="#18 Napoleon hat サムネイル" loading="lazy">
+              <span class="play" aria-hidden="true"></span>
+            </a>
+          </div>
+          <div class="video-meta">
+            <div class="video-title">#18 Napoleon hat</div>
+            <a class="video-link" href="https://youtu.be/mRQy9C9HhxA" target="_blank" rel="noopener noreferrer">https://youtu.be/mRQy9C9HhxA</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
 
     <footer>
       © VRCキャロムビリヤード部 / Since 2025
@@ -638,7 +785,9 @@
     // ===== Gallery（Cloudinary）=====
     const gallery = [
       { id: "1_skqpf3", title: "ポスター" },
-      { url: "https://res.cloudinary.com/dlqrotrhj/image/upload/v1765795485/8_td9pno.png", title: "告知画像" }
+      { url: "https://res.cloudinary.com/dlqrotrhj/image/upload/v1765795485/8_td9pno.png", title: "告知画像" },
+      { url: "https://res.cloudinary.com/dlqrotrhj/image/upload/v1765819049/VRC%E3%82%AD%E3%83%A3%E3%83%AD%E3%83%A0%E3%83%93%E3%83%AA%E3%83%A4%E3%83%BC%E3%83%89%E9%83%A8_qjfwll.png", title: "告知画像 2" },
+      { url: "https://res.cloudinary.com/dlqrotrhj/image/upload/v1765818267/VRC%E3%82%AD%E3%83%A3%E3%83%AD%E3%83%A0%E3%83%93%E3%83%AA%E3%83%A4%E3%83%BC%E3%83%89%E9%83%A8_o6jwbj.png", title: "告知画像 3" }
     ];
 
     const galleryGrid = document.getElementById("galleryGrid");
