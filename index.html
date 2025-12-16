@@ -466,6 +466,49 @@
   <main>
     <section id="about" class="card">
       <h2>概要</h2>
+      <p class="muted">
+        ポケットのない「キャロム台」の遊び（スリークッション、四つ玉、3ボール等）を中心に、
+        練習会・大会・講座・リーグ戦を開催しています。最近では、FargoRateを使ったスリークッションの
+        <strong>成り上がり杯</strong>も運用中です。
+      </p>
+    </section>
+
+    <section id="activities" class="card">
+      <h2>活動内容</h2>
+      <ul>
+        <li><strong>定期練習会：</strong>毎週木曜の夜に集まって練習・対戦（初心者歓迎）</li>
+        <li><strong>月例大会：</strong>基本的に<strong>毎月第一金曜日</strong>にトーナメントを開催</li>
+        <li><strong>講座：</strong>スリークッションの基礎〜次の一歩まで、テーマ別で開催</li>
+        <li><strong>リーグ戦：</strong>期間を設けて総当たりで対戦（スリークッションリーグ等）</li>
+        <li><strong>FargoRate 成り上がり杯：</strong>FargoRateを軸にした長期運用イベント（現在運用中）</li>
+        <li><strong>対応ゲーム例：</strong>3ボール / 韓国式4ボール / 4ボール / バンドゲーム（1クッション） / スリークッション</li>
+        <li><strong>新要素：</strong>ポケットテーブルを使った「<strong>カイルン</strong>」もプレー可能になりました</li>
+      </ul>
+      <p class="muted" style="margin-top:10px;">
+        開催告知・参加募集・結果報告は、主に公式XとDiscordで行います。
+      </p>
+    </section>
+
+    <section id="history" class="card">
+      <h2>過去のイベント（トーナメント / 講座 / リーグ）</h2>
+      <p class="muted">ボタンで種類を切り替え、キーワードで絞り込みできます（例：kuu00 / 4ball / リーグ）。</p>
+
+      <div class="filters">
+        <button class="btn" data-kind="tournaments" aria-pressed="true">トーナメント</button>
+        <button class="btn" data-kind="lectures" aria-pressed="false">講座</button>
+        <button class="btn" data-kind="leagues" aria-pressed="false">リーグ戦</button>
+        <button class="btn" data-kind="ongoing" aria-pressed="false">運用中</button>
+
+        <div class="search" style="margin-left:auto;">
+          <input id="q" type="search" placeholder="検索（タイトル / 優勝者 / 講師 など）" />
+        </div>
+      </div>
+
+      <ol id="historyList" class="list"></ol>
+    </section>
+
+    <section id="gallery" class="card">
+      <h2>ギャラリー</h2>
 <div id="galleryGrid" class="gallery-grid"></div>
     </section>
 
