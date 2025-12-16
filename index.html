@@ -416,6 +416,21 @@
       text-decoration:underline;
     }
 
+
+    /* FAQ */
+    .faq details{
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.03);
+    }
+    .faq details + details{ margin-top: 10px; }
+    .faq summary{
+      cursor:pointer;
+      font-weight:800;
+      outline:none;
+    }
+    .faq .answer{ margin-top: 10px; line-height:1.7; }
 </style>
 </head>
 <body>
@@ -444,6 +459,7 @@
       <a href="#gallery">ギャラリー</a>
       <a href="#join">参加方法</a>
       <a href="#videos">動画</a>
+      <a href="#faq">FAQ</a>
     </div>
   </nav>
 
@@ -508,18 +524,21 @@
         <li>Discord：<a href="https://discord.gg/nPfYDb7tsj" target="_blank" rel="noopener">https://discord.gg/nPfYDb7tsj</a></li>
         <li>VRChatグループ：<a href="https://vrc.group/CAROM.6269" target="_blank" rel="noopener">https://vrc.group/CAROM.6269</a></li>
       </ul>
+      <p class="muted" style="margin-top:10px;">トーナメントに参加するには事前登録が必要です。DiscordやXで告知するので、Googleフォーム（エントリーフォーム）でエントリーしてください。</p>
+
       <p class="muted" style="margin-top:10px;">
         ※イベント当日は、VRChat内で集合してそのまま参加できるスタイルです。告知はDiscord・Xをご確認ください。
       </p>
     </section>
 
 
+    
     <section id="videos" class="card">
       <h2>動画</h2>
       <p class="muted">YouTubeで公開している関連動画です（クリックでYouTubeを開きます）。</p>
 
       <div class="video-grid">
-<div class="video-card">
+        <div class="video-card">
           <div class="ratio">
             <a class="video-thumb" href="https://youtu.be/oja49ijZnd8" target="_blank" rel="noopener noreferrer" aria-label="VRC キャロムビリヤード部　スライドショー（YouTubeで開く）">
               <img src="https://i.ytimg.com/vi/oja49ijZnd8/hqdefault.jpg" alt="VRC キャロムビリヤード部　スライドショー サムネイル" loading="lazy">
@@ -531,8 +550,7 @@
             <a class="video-link" href="https://youtu.be/oja49ijZnd8" target="_blank" rel="noopener noreferrer">https://youtu.be/oja49ijZnd8</a>
           </div>
         </div>
-
-<div class="video-card">
+        <div class="video-card">
           <div class="ratio">
             <a class="video-thumb" href="https://youtu.be/_0ZMVB6lvTY" target="_blank" rel="noopener noreferrer" aria-label="vrchat スリークッションの特殊な取り方（YouTubeで開く）">
               <img src="https://i.ytimg.com/vi/_0ZMVB6lvTY/hqdefault.jpg" alt="vrchat スリークッションの特殊な取り方 サムネイル" loading="lazy">
@@ -544,8 +562,7 @@
             <a class="video-link" href="https://youtu.be/_0ZMVB6lvTY" target="_blank" rel="noopener noreferrer">https://youtu.be/_0ZMVB6lvTY</a>
           </div>
         </div>
-
-<div class="video-card">
+        <div class="video-card">
           <div class="ratio">
             <a class="video-thumb" href="https://youtu.be/DgG79SYBqac" target="_blank" rel="noopener noreferrer" aria-label="three cushion spirits（YouTubeで開く）">
               <img src="https://i.ytimg.com/vi/DgG79SYBqac/hqdefault.jpg" alt="three cushion spirits サムネイル" loading="lazy">
@@ -557,8 +574,7 @@
             <a class="video-link" href="https://youtu.be/DgG79SYBqac" target="_blank" rel="noopener noreferrer">https://youtu.be/DgG79SYBqac</a>
           </div>
         </div>
-
-<div class="video-card">
+        <div class="video-card">
           <div class="ratio">
             <a class="video-thumb" href="https://youtu.be/mRQy9C9HhxA" target="_blank" rel="noopener noreferrer" aria-label="#18 Napoleon hat（YouTubeで開く）">
               <img src="https://i.ytimg.com/vi/mRQy9C9HhxA/hqdefault.jpg" alt="#18 Napoleon hat サムネイル" loading="lazy">
@@ -573,8 +589,41 @@
       </div>
     </section>
 
+    <section id="faq" class="card faq">
+      <h2>FAQ よくある質問</h2>
+      <p class="muted">回答は必要に応じて追記していきます。</p>
 
-    <footer>
+      <details>
+        <summary>vrchatって何ですか？</summary>
+        <div class="answer">
+          <p>VRChat（ブイアールチャット）は、PCやVRヘッドセットで入れる<strong>ソーシャルVRプラットフォーム</strong>です。ワールド（世界）に入って、アバターで歩き回ったり、ボイスチャットで会話したり、ゲームやイベントに参加できます。</p>
+          <p>VRがなくても<strong>PC（デスクトップ）だけで参加可能</strong>なので、まずはPCで雰囲気を見て、慣れてきたらVRで遊ぶ人も多いです。</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>VRでのビリヤードはリアルのビリヤードと何が違うの？</summary>
+        <div class="answer">
+          <p>大きくは「体験のしかた」と「環境」の違いです。</p>
+          <ul>
+            <li><strong>距離感・フォーム</strong>：VRではキューを実際に持つわけではないため、フォームや構えはリアルと完全一致しません。その一方で、VRならではの感覚で「狙い」「厚み」「回転」「力加減」を練習できます。</li>
+            <li><strong>物理・台の個性</strong>：VRの台はワールドごとに物理設定（転がり、クッション、摩擦など）が異なることがあります。代わりに、キャロム（3C/4B/1クッション等）に対応した台でルール練習や配置練習がしやすいのも特徴です。</li>
+            <li><strong>集まりやすさ</strong>：移動が不要で集まりやすく、初心者でも参加しやすいのがVRの強みです。</li>
+          </ul>
+          <p>「リアルの完全な代替」ではなく、<strong>別競技として楽しい＋練習にもなる</strong>、というイメージが近いです。</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Fargoレートって何ですか？</summary>
+        <div class="answer">
+          <p>FargoRate（ファーゴレート）は、主にポケットビリヤードで使われる<strong>実力を数値化するレーティング</strong>の仕組みです。試合結果を積み重ねることで、相手との実力差を考慮しながらレートが更新され、近い実力同士のマッチメイクやハンデ設定の目安として使われます。</p>
+          <p>VRCキャロムビリヤード部では、スリークッションでも「成り上がり杯」などで<strong>レートを目安にしたイベント運用</strong>を行っています（運用ルールはイベントごとに案内します）。</p>
+        </div>
+      </details>
+    </section>
+
+<footer>
       © VRCキャロムビリヤード部 / Since 2025
     </footer>
   </main>
@@ -663,8 +712,8 @@
         { date: "12月5日", title: "第2回4ballトーナメント", winner: "貴＠ｓｃT" , img: "https://res.cloudinary.com/dlqrotrhj/image/upload/v1765861948/4_xy8v2w.png"}
       ],
       lectures: [
-        { date: "9月11日", title: "スリークッション講座「スリークッション　最初の一歩」", instructor: "int mint" },
-        { date: "10月3日", title: "スリークッション講座「スリークッション　次への一歩」", instructor: "int mint" }
+        { date: "9月11日", title: "スリークッション講座「スリークッション　最初の一歩」", instructor: "int mint", img: "https://res.cloudinary.com/dlqrotrhj/image/upload/v1765865685/3cushion-seminar1_qyrgmc.png" },
+        { date: "10月3日", title: "スリークッション講座「スリークッション　次への一歩」", instructor: "int mint", img: "https://res.cloudinary.com/dlqrotrhj/image/upload/v1765865704/3cushion-seminar2_q9ygfs.png" }
       ],
       leagues: [
         {
@@ -784,10 +833,10 @@
 
     // ===== Gallery（Cloudinary）=====
     const gallery = [
-      { id: "1_skqpf3", title: "ポスター" },
-      { url: "https://res.cloudinary.com/dlqrotrhj/image/upload/v1765795485/8_td9pno.png", title: "告知画像" },
-      { url: "https://res.cloudinary.com/dlqrotrhj/image/upload/v1765819049/VRC%E3%82%AD%E3%83%A3%E3%83%AD%E3%83%A0%E3%83%93%E3%83%AA%E3%83%A4%E3%83%BC%E3%83%89%E9%83%A8_qjfwll.png", title: "告知画像 2" },
-      { url: "https://res.cloudinary.com/dlqrotrhj/image/upload/v1765818267/VRC%E3%82%AD%E3%83%A3%E3%83%AD%E3%83%A0%E3%83%93%E3%83%AA%E3%83%A4%E3%83%BC%E3%83%89%E9%83%A8_o6jwbj.png", title: "告知画像 3" }
+      { id: "1_skqpf3", title: "日本語ポスター（旧）" },
+      { url: "https://res.cloudinary.com/dlqrotrhj/image/upload/v1765795485/8_td9pno.png", title: "日本語ポスター（新）" },
+      { url: "https://res.cloudinary.com/dlqrotrhj/image/upload/v1765819049/VRC%E3%82%AD%E3%83%A3%E3%83%AD%E3%83%A0%E3%83%93%E3%83%AA%E3%83%A4%E3%83%BC%E3%83%89%E9%83%A8_qjfwll.png", title: "英語ポスター" },
+      { url: "https://res.cloudinary.com/dlqrotrhj/image/upload/v1765818267/VRC%E3%82%AD%E3%83%A3%E3%83%AD%E3%83%A0%E3%83%93%E3%83%AA%E3%83%A4%E3%83%BC%E3%83%89%E9%83%A8_o6jwbj.png", title: "韓国語ポスター" }
     ];
 
     const galleryGrid = document.getElementById("galleryGrid");
