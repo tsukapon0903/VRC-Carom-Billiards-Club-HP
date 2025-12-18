@@ -417,6 +417,64 @@
     }
 
 
+    
+    /* History (Year accordion + pagination) */
+    .sort select{
+      height:36px;
+      padding:0 10px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.22);
+      color:var(--text);
+      outline:none;
+    }
+    .history-years{
+      display:grid;
+      gap:12px;
+    }
+    .history-years details{
+      border:1px solid var(--line);
+      border-radius:16px;
+      background: rgba(255,255,255,0.03);
+      overflow:hidden;
+    }
+    .history-years summary{
+      cursor:pointer;
+      list-style:none;
+      padding:12px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      font-weight:800;
+    }
+    .history-years summary::-webkit-details-marker{ display:none; }
+    .history-years .year-meta{
+      font-weight:700;
+      color:var(--muted);
+      font-size:13px;
+    }
+    .year-body{
+      padding: 0 12px 12px;
+    }
+    .pager{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      margin-top:10px;
+    }
+    .pager .btn{
+      padding:6px 10px;
+      border-radius:12px;
+      font-size:13px;
+    }
+    .pager .pageinfo{
+      color:var(--muted);
+      font-size:13px;
+    }
+
+
     /* FAQ */
     .faq details{
       border:1px solid var(--line);
@@ -460,6 +518,7 @@
       <a href="#join">参加方法</a>
       <a href="#videos">動画</a>
       <a href="#faq">FAQ</a>
+      <a href="#contact">お問い合わせ</a>
     </div>
   </nav>
 
@@ -502,9 +561,15 @@
         <div class="search" style="margin-left:auto;">
           <input id="q" type="search" placeholder="検索（タイトル / 優勝者 / 講師 など）" />
         </div>
+        <div class="sort">
+          <select id="sortOrder" aria-label="並び順">
+            <option value="desc" selected>新しい順</option>
+            <option value="asc">古い順</option>
+          </select>
+        </div>
       </div>
 
-      <ol id="historyList" class="list"></ol>
+      <div id="historyList" class="history-years"></div>
     </section>
 
     <section id="gallery" class="card">
@@ -618,6 +683,19 @@
         </div>
       </details>
     </section>
+
+    <section id="contact" class="card">
+      <h2>お問い合わせ</h2>
+      <p>ご質問・参加相談・取材などは、以下からお気軽にご連絡ください。</p>
+      <ul>
+        <li>公式X：<a href="https://x.com/VRC_carom" target="_blank" rel="noopener">https://x.com/VRC_carom</a>（DM / リプライ）</li>
+        <li>Discord：<a href="https://discord.gg/nPfYDb7tsj" target="_blank" rel="noopener">https://discord.gg/nPfYDb7tsj</a></li>
+        <li>VRChatグループ：<a href="https://vrc.group/CAROM.6269" target="_blank" rel="noopener">https://vrc.group/CAROM.6269</a></li>
+      </ul>
+      <p class="muted">※トーナメント参加は、告知に記載のGoogleフォーム（エントリーフォーム）からお申し込みください。</p>
+    </section>
+
+    
 
 <footer>
       © VRCキャロムビリヤード部 / Since 2025
@@ -749,12 +827,36 @@
     const btns = Array.from(document.querySelectorAll(".btn[data-kind]"));
     let currentKind = "tournaments";
 
+    
+    const sortEl = document.getElementById("sortOrder");
+    const PAGE_SIZE = 5;
+    const DEFAULT_YEAR = 2025;
+    const pageByYear = {}; // { [year]: pageNumber }
+
+    function extractYMDKey(dateStr){
+      const s = (dateStr || "").toString();
+      let y = DEFAULT_YEAR;
+      const ym = s.match(/(\d{4})年/);
+      if(ym) y = parseInt(ym[1], 10);
+
+      const md = s.match(/(\d+)月(\d+)日/);
+      let m = 1, d = 1;
+      if(md){
+        m = parseInt(md[1], 10);
+        d = parseInt(md[2], 10);
+      }
+      const key = (y * 10000) + (m * 100) + d;
+      return { y, m, d, key };
+    }
+
     function renderHistory(){
       if(!listEl) return;
 
       const items = data[currentKind] || [];
       const q = normalize(qEl ? qEl.value : "");
+      const order = (sortEl && sortEl.value) ? sortEl.value : "desc";
 
+      // filter
       const filtered = items.filter(it => {
         const hay = normalize([it.date, it.title, it.winner, it.instructor, it.note].filter(Boolean).join(" "));
         return !q || hay.includes(q);
@@ -763,65 +865,132 @@
       listEl.innerHTML = "";
 
       if(filtered.length === 0){
-        const li = document.createElement("li");
-        li.className = "item";
-        li.innerHTML = '<div class="muted">該当する項目がありません。</div>';
-        listEl.appendChild(li);
+        listEl.innerHTML = '<div class="muted">該当する項目がありません。</div>';
         return;
       }
 
-      filtered.forEach(it => {
-        const li = document.createElement("li");
-        li.className = "item";
+      // enrich with year + key
+      const enriched = filtered.map(it => {
+        const { y, key } = extractYMDKey(it.date);
+        return { it, year: (it.year || y), key };
+      });
 
-        const metaParts = [];
-        if(it.winner) metaParts.push(`優勝者：${escapeHtml(it.winner)}`);
-        if(it.instructor) metaParts.push(`講師：${escapeHtml(it.instructor)}`);
-        if(it.note) metaParts.push(escapeHtml(it.note));
+      // group by year
+      const groups = {};
+      enriched.forEach(x => {
+        const y = x.year;
+        (groups[y] ||= []).push(x);
+      });
 
-        const imgUrls = [];
-        if(Array.isArray(it.imgs)) imgUrls.push(...it.imgs);
-        if(it.img) imgUrls.unshift(it.img);
+      const years = Object.keys(groups).map(n => parseInt(n,10)).sort((a,b)=>b-a); // newest year first
 
-        const imgsHtml = imgUrls.length ? `
-          <div class="item-imgs">
-            ${imgUrls.map((u, idx) => {
-              const thumb = cldFromUrl(u, 320);     // 小さめ（約1/4）
-              const full  = cldFromUrl(u, 1600);    // 拡大表示
-              const alt   = escapeHtml(`${it.title} (${idx+1})`);
-              return `<button class="img-btn" type="button" data-full="${full}" data-alt="${alt}" aria-label="画像を拡大">
-                        <img src="${thumb}" alt="${alt}" loading="lazy" />
-                      </button>`;
-            }).join("")}
-          </div>
-        ` : "";
-
-        li.innerHTML = `
-          <div class="top">
-            <span class="badge">${labels[currentKind]} / ${escapeHtml(it.date)}</span>
-          </div>
-          <h3>${escapeHtml(it.title)}</h3>
-          ${metaParts.length ? `<div class="meta">${metaParts.join("　")}</div>` : ""}
-          ${imgsHtml}
-        `;
-
-        li.querySelectorAll(".img-btn").forEach(btn => {
-          btn.addEventListener("click", () => openLightbox(btn.dataset.full, btn.dataset.alt || ""));
+      years.forEach((year, idxYear) => {
+        // sort within year by key
+        const arr = groups[year].slice().sort((a,b)=>{
+          return order === "asc" ? (a.key - b.key) : (b.key - a.key);
         });
 
-        listEl.appendChild(li);
+        const total = arr.length;
+        const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+        const page = Math.min(Math.max(pageByYear[year] || 1, 1), totalPages);
+        pageByYear[year] = page;
+
+        const start = (page - 1) * PAGE_SIZE;
+        const view = arr.slice(start, start + PAGE_SIZE);
+
+        const details = document.createElement("details");
+        details.className = "year";
+        // 最新年は開く（他は閉じる）
+        if(idxYear === 0) details.open = true;
+
+        const summary = document.createElement("summary");
+        summary.innerHTML = `<span>${year}年</span><span class="year-meta">${total}件</span>`;
+        details.appendChild(summary);
+
+        const body = document.createElement("div");
+        body.className = "year-body";
+
+        const ol = document.createElement("ol");
+        ol.className = "list";
+
+        view.forEach(({it}) => {
+          const li = document.createElement("li");
+          li.className = "item";
+
+          const metaParts = [];
+          if(it.winner) metaParts.push(`優勝者：${escapeHtml(it.winner)}`);
+          if(it.instructor) metaParts.push(`講師：${escapeHtml(it.instructor)}`);
+          if(it.note) metaParts.push(`${escapeHtml(it.note)}`);
+
+          const imgUrls = [];
+          if(it.img) imgUrls.push(it.img);
+          if(Array.isArray(it.imgs)) imgUrls.push(...it.imgs);
+
+          const imgsHtml = imgUrls.length ? `
+            <div class="item-imgs">
+              ${imgUrls.map((u, idx) => {
+                const thumb = cldFromUrl(u, 320);
+                const full  = cldFromUrl(u, 1600);
+                const alt   = escapeHtml(`${it.title} (${idx+1})`);
+                return `<button class="img-btn" type="button" data-full="${full}" data-alt="${alt}" aria-label="画像を拡大">
+                          <img src="${thumb}" alt="${alt}" loading="lazy" />
+                        </button>`;
+              }).join("")}
+            </div>
+          ` : "";
+
+          li.innerHTML = `
+            <div class="top">
+              <span class="badge">${labels[currentKind]} / ${escapeHtml(it.date)}</span>
+            </div>
+            <h3>${escapeHtml(it.title)}</h3>
+            ${metaParts.length ? `<div class="meta">${metaParts.join("　")}</div>` : ""}
+            ${imgsHtml}
+          `;
+
+          li.querySelectorAll(".img-btn").forEach(btn => {
+            btn.addEventListener("click", () => openLightbox(btn.dataset.full, btn.dataset.alt || ""));
+          });
+
+          ol.appendChild(li);
+        });
+
+        body.appendChild(ol);
+
+        if(totalPages > 1){
+          const pager = document.createElement("div");
+          pager.className = "pager";
+          pager.innerHTML = `
+            <button class="btn" type="button" data-act="prev">前へ</button>
+            <span class="pageinfo">${page} / ${totalPages}</span>
+            <button class="btn" type="button" data-act="next">次へ</button>
+          `;
+          const prev = pager.querySelector('[data-act="prev"]');
+          const next = pager.querySelector('[data-act="next"]');
+          prev.disabled = page <= 1;
+          next.disabled = page >= totalPages;
+
+          prev.addEventListener("click", () => { pageByYear[year] = Math.max(1, pageByYear[year] - 1); renderHistory(); });
+          next.addEventListener("click", () => { pageByYear[year] = Math.min(totalPages, pageByYear[year] + 1); renderHistory(); });
+
+          body.appendChild(pager);
+        }
+
+        details.appendChild(body);
+        listEl.appendChild(details);
       });
     }
 
-    // ボタン初期化
-    btns.forEach(b => {
+btns.forEach(b => {
       b.addEventListener("click", () => {
         currentKind = b.dataset.kind;
+        for(const k in pageByYear){ delete pageByYear[k]; }
         btns.forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
         renderHistory();
       });
     });
-    if(qEl) qEl.addEventListener("input", renderHistory);
+    if(qEl) qEl.addEventListener("input", () => { for(const k in pageByYear){ delete pageByYear[k]; } renderHistory(); });
+    if(sortEl) sortEl.addEventListener("change", () => { for(const k in pageByYear){ delete pageByYear[k]; } renderHistory(); });
 
     // デフォルト：トーナメント表示
     btns.forEach(x => x.setAttribute("aria-pressed", x.dataset.kind === currentKind ? "true" : "false"));
@@ -870,7 +1039,8 @@
 
     renderGallery();
   })();
-  </script>
+  
+</script>
 
 </body>
 </html>
